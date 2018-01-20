@@ -50,10 +50,19 @@ def fetch_search_image_id_logs(rconn):
       image = pickle.loads(value)
       user_log_api.add_image_index_search_log(image)
 
+def fetch_search_object_id_logs(rconn):
+  user_log_api = UserLogs()
+  while True:
+    key, value = rconn.blpop([REDIS_LOG_SEARCH_OBJECT_ID_QUEUE])
+    if value is not None:
+      object = pickle.loads(value)
+      user_log_api.add_object_id_search_log(object)
+
 if __name__ == '__main__':
   try:
-    log.info("start bl-search-log:1")
+    log.info("start bl-search-log:2")
     Process(target=fetch_search_image_file_logs, args=(rconn,)).start()
     Process(target=fetch_search_image_id_logs, args=(rconn,)).start()
+    Process(target=fetch_search_object_id_logs, args=(rconn,)).start()
   except Exception as e:
     log.error(str(e))
